@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'theme.dart';
+import 'services/database_service.dart';
 import 'screens/public/home_screen.dart';
 import 'screens/public/catalog_screen.dart';
 import 'screens/public/detail_screen.dart';
 import 'screens/admin/login_screen.dart';
 import 'screens/admin/dashboard_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseService.instance.init(); // ← Inicializa Hive
   runApp(const PetroglifosMauleApp());
 }
 

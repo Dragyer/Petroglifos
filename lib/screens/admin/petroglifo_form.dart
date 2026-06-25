@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/petroglifo.dart';
 import '../../models/sitio.dart';
+import '../../services/database_service.dart';
 import '../../services/mock_data.dart';
 
 class PetroglifoForm extends StatefulWidget {
@@ -43,7 +44,7 @@ class _PetroglifoFormState extends State<PetroglifoForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.petroglifoToEdit == null ? 'Nueva Ficha Técnica' : 'Editar Ficha'),
@@ -116,6 +117,8 @@ class _PetroglifoFormState extends State<PetroglifoForm> {
         ),
       ),
     );
+
+    
   }
 
   Widget _buildTextField(String label, TextEditingController controller, {String? hint}) {
@@ -181,4 +184,29 @@ class _PetroglifoFormState extends State<PetroglifoForm> {
       ),
     );
   }
+  
+  void _guardar() async {
+  if (_formKey.currentState!.validate() && _sitioSeleccionado != null) {
+    final nuevo = Petroglifo(
+      id: widget.petroglifoToEdit?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      codigo: _codigoController.text.trim(),
+      sitioId: _sitioSeleccionado!.id,
+      tipoRoca: _tipoRoca,
+      dimensiones: _dimensionesController.text.trim(),
+      tecnicaGrabado: _tecnicaGrabado,
+      tipoMotivo: _tipoMotivo,
+      descripcion: _descripcionController.text.trim(),
+      estado: _estado,
+      visibilidad: _visibilidad,
+    );
+
+    await DatabaseService.instance.savePetroglifo(nuevo);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Petroglifo guardado correctamente'), backgroundColor: Colors.green),
+    );
+    Navigator.pop(context, nuevo);
+  }
+}
+
 }

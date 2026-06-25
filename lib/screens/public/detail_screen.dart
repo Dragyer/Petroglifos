@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/mock_data.dart';
 import '../../models/petroglifo.dart';
+import '../../services/mock_data.dart';
 
 class DetailScreen extends StatelessWidget {
   final String petroId;
@@ -14,9 +14,8 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Hero Section
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 190,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
@@ -27,64 +26,46 @@ class DetailScreen extends StatelessWidget {
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: const Center(
-                  child: Text('🪨', style: TextStyle(fontSize: 100)),
-                ),
+                child: const Center(child: Text('🪨', style: TextStyle(fontSize: 90))),
               ),
             ),
             title: Text(petro.codigo),
             backgroundColor: const Color(0xFF2D5A27),
           ),
-
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Título y Sitio
-                  Text(
-                    'Petroglifo Cerro Quiahue',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20),
-                  ),
-                  const SizedBox(height: 4),
+                  Text('Petroglifo Cerro Quiahue', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.map, size: 16, color: Color(0xFF2D5A27)),
+                      const Icon(Icons.location_on, size: 18, color: Color(0xFF2D5A27)),
                       const SizedBox(width: 6),
-                      Text(
-                        'Sitio Cerro Quiahue · Linares',
-                        style: const TextStyle(color: Color(0xFF2D5A27)),
-                      ),
+                      const Text('Sitio Cerro Quiahue · Linares', style: TextStyle(color: Color(0xFF2D5A27))),
                     ],
                   ),
 
+                  const SizedBox(height: 16),
+                  Wrap(spacing: 8, children: [
+                    _badge('Zoomorfo', const Color(0xFFB87A00)),
+                    _badge(petro.estadoTexto, const Color(0xFFB87A00)),
+                    _badge('Percusión directa', const Color(0xFF2D5A27)),
+                  ]),
+
+                  const SizedBox(height: 24),
+                  const Text('Información Técnica', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
 
-                  // Badges
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      _buildBadge('Zoomorfo', const Color(0xFFB87A00)),
-                      _buildBadge(petro.estadoTexto, const Color(0xFFB87A00)),
-                      _buildBadge('Percusión directa', const Color(0xFF2D5A27)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Info Grid
-                  const Text('Información Técnica', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 12),
-                  GridView(
+                  GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 2.2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    crossAxisCount: 2,
+                    childAspectRatio: 2.4,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
                     children: [
                       _infoCard('Tipo de roca', petro.tipoRoca),
                       _infoCard('Dimensiones', petro.dimensiones),
@@ -93,31 +74,24 @@ class DetailScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
-
-                  // Descripción
-                  const Text('Descripción', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 24),
+                  const Text('Descripción', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  Text(
-                    petro.descripcion,
-                    style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87),
-                  ),
+                  Text(petro.descripcion, style: const TextStyle(height: 1.6, fontSize: 14.5)),
 
                   const SizedBox(height: 24),
-
-                  // Galería
-                  const Text('Galería Multimedia', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text('Galería Multimedia', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   SizedBox(
-                    height: 80,
+                    height: 88,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        _mediaThumb('📷'),
-                        _mediaThumb('📷'),
-                        _mediaThumb('📷'),
-                        _mediaThumb('📄', isPdf: true),
-                        _mediaThumb('🔒', isRestricted: true),
+                        _mediaItem('📷'),
+                        _mediaItem('📷'),
+                        _mediaItem('📷'),
+                        _mediaItem('📄', isPdf: true),
+                        _mediaItem('🔒', isRestricted: true),
                       ],
                     ),
                   ),
@@ -130,54 +104,40 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
-      ),
-    );
-  }
+  Widget _badge(String text, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
+        child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
+      );
 
-  Widget _infoCard(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F3),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
-          const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
+  Widget _infoCard(String label, String value) => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F7F3),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ],
+        ),
+      );
 
-  Widget _mediaThumb(String emoji, {bool isPdf = false, bool isRestricted = false}) {
-    return Container(
-      width: 70,
-      margin: const EdgeInsets.only(right: 10),
-      decoration: BoxDecoration(
-        color: isPdf ? const Color(0xFFFDE8E8) : const Color(0xFFD4EDD0),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 28)),
-          if (isRestricted)
-            const Text('Restringido', style: TextStyle(fontSize: 9, color: Colors.red)),
-        ],
-      ),
-    );
-  }
+  Widget _mediaItem(String emoji, {bool isPdf = false, bool isRestricted = false}) => Container(
+        width: 72,
+        margin: const EdgeInsets.only(right: 10),
+        decoration: BoxDecoration(
+          color: isPdf ? const Color(0xFFFDE8E8) : const Color(0xFFD4EDD0),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 32)),
+            if (isRestricted) const Text('Restringido', style: TextStyle(fontSize: 9, color: Colors.red)),
+          ],
+        ),
+      );
 }

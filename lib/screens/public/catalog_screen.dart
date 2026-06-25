@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../services/database_service.dart';
 import '../../models/petroglifo.dart';
-import '../../services/mock_data.dart';
-import '../widgets/petroglifo_card.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -14,16 +13,24 @@ class CatalogScreen extends StatefulWidget {
 class _CatalogScreenState extends State<CatalogScreen> {
   String filtro = 'Todos';
   final TextEditingController _searchController = TextEditingController();
+  List<Petroglifo> allPetros = [];
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final db = DatabaseService.instance;
+    setState(() {
+      allPetros = db.getAllPetroglifos();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = mockPetroglifos.where((p) {
+    final filtered = allPetros.where((p) {
       final matchesFiltro = filtro == 'Todos' || 
           p.tipoMotivo.name.toLowerCase() == filtro.toLowerCase();
 
@@ -35,17 +42,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Catálogo'),
-        backgroundColor: const Color(0xFF2D5A27),
-      ),
+      appBar: AppBar(title: const Text('Catálogo'), backgroundColor: const Color(0xFF2D5A27)),
       body: Column(
         children: [
-          // Search Bar
           Padding(
             padding: const EdgeInsets.all(12),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -55,52 +58,35 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 controller: _searchController,
                 onChanged: (_) => setState(() {}),
                 decoration: const InputDecoration(
-                  hintText: 'Buscar petroglifo, código o sitio...',
-                  prefixIcon: Icon(Icons.search, color: Colors.grey),
+                  hintText: 'Buscar petroglifo...',
+                  prefixIcon: Icon(Icons.search),
                   border: InputBorder.none,
                 ),
               ),
             ),
           ),
 
-          // Filter Chips (horizontal scroll)
           SizedBox(
             height: 48,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                'Todos',
-                'Zoomorfo',
-                'Geometrico',
-                'Antropomorfo',
-                'Abstracto'
-              ].map((filtroOption) {
-                final isSelected = filtro == filtroOption;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(filtroOption),
-                    selected: isSelected,
-                    backgroundColor: Colors.white,
-                    selectedColor: const Color(0xFF2D5A27),
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[700],
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                    ),
-                    onSelected: (selected) {
-                      setState(() => filtro = selected ? filtroOption : 'Todos');
-                    },
-                  ),
-                );
-              }).toList(),
+              children: ['Todos', 'Zoomorfo', 'Geometrico', 'Antropomorfo', 'Abstracto']
+                  .map((f) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text(f),
+                          selected: filtro == f,
+                          onSelected: (sel) => setState(() => filtro = sel ? f : 'Todos'),
+                        ),
+                      ))
+                  .toList(),
             ),
           ),
 
-          // Grid View (como en el HTML)
           Expanded(
             child: filtered.isEmpty
-                ? const Center(child: Text('No se encontraron resultados'))
+                ? const Center(child: Text('No hay resultados'))
                 : GridView.builder(
                     padding: const EdgeInsets.all(12),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -115,55 +101,20 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       return GestureDetector(
                         onTap: () => context.push('/detail/${petro.id}'),
                         child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Imagen / Placeholder
                               Container(
                                 height: 110,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade100,
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                ),
-                                child: const Center(
-                                  child: Text('🪨', style: TextStyle(fontSize: 48)),
-                                ),
+                                color: Colors.green.shade100,
+                                child: const Center(child: Text('🪨', style: TextStyle(fontSize: 48))),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      petro.codigo,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      petro.tipoMotivo.name.toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: _getBadgeColor(petro.tipoMotivo),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        petro.tipoMotivo.name,
-                                        style: const TextStyle(fontSize: 10, color: Colors.white),
-                                      ),
-                                    ),
+                                    Text(petro.codigo, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(petro.tipoMotivo.name.toUpperCase()),
                                   ],
                                 ),
                               ),
@@ -177,20 +128,5 @@ class _CatalogScreenState extends State<CatalogScreen> {
         ],
       ),
     );
-  }
-
-  Color _getBadgeColor(TipoMotivo tipo) {
-    switch (tipo) {
-      case TipoMotivo.zoomorfo:
-        return const Color(0xFFB87A00);
-      case TipoMotivo.geometrico:
-        return const Color(0xFF2D5A27);
-      case TipoMotivo.antropomorfo:
-        return const Color(0xFFB53030);
-      case TipoMotivo.abstracto:
-        return const Color(0xFF5341A8);
-      default:
-        return Colors.grey;
-    }
   }
 }
