@@ -4,7 +4,7 @@ import '../../models/sitio.dart';
 import '../../services/mock_data.dart';
 
 class PetroglifoForm extends StatefulWidget {
-  final Petroglifo? petroglifoToEdit; // null si es nuevo
+  final Petroglifo? petroglifoToEdit;
 
   const PetroglifoForm({super.key, this.petroglifoToEdit});
 
@@ -14,246 +14,170 @@ class PetroglifoForm extends StatefulWidget {
 
 class _PetroglifoFormState extends State<PetroglifoForm> {
   final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController _codigoController;
-  late TextEditingController _dimensionesController;
-  late TextEditingController _descripcionController;
+  final _codigoController = TextEditingController();
+  final _dimensionesController = TextEditingController();
+  final _descripcionController = TextEditingController();
 
   Sitio? _sitioSeleccionado;
-  String _tipoRoca = 'Granito';
-  String _tecnicaGrabado = 'Percusión directa';
   TipoMotivo _tipoMotivo = TipoMotivo.zoomorfo;
   EstadoConservacion _estado = EstadoConservacion.regular;
   Visibilidad _visibilidad = Visibilidad.basica;
-
-  final List<String> _tiposRoca = ['Granito', 'Pizarra', 'Arenisca', 'Otro'];
-  final List<String> _tecnicas = [
-    'Percusión directa',
-    'Percusión indirecta',
-    'Abrasión',
-    'Mixto'
-  ];
+  String _tipoRoca = 'Granito';
+  String _tecnicaGrabado = 'Percusión directa';
 
   @override
   void initState() {
     super.initState();
-    final petro = widget.petroglifoToEdit;
-
-    _codigoController = TextEditingController(text: petro?.codigo ?? '');
-    _dimensionesController = TextEditingController(text: petro?.dimensiones ?? '');
-    _descripcionController = TextEditingController(text: petro?.descripcion ?? '');
-
-    if (petro != null) {
-      _sitioSeleccionado = mockSitios.firstWhere((s) => s.id == petro.sitioId);
-      _tipoRoca = petro.tipoRoca;
-      _tecnicaGrabado = petro.tecnicaGrabado;
-      _tipoMotivo = petro.tipoMotivo;
-      _estado = petro.estado;
-      _visibilidad = petro.visibilidad;
-    } else {
-      _sitioSeleccionado = mockSitios.isNotEmpty ? mockSitios.first : null;
+    if (widget.petroglifoToEdit != null) {
+      final p = widget.petroglifoToEdit!;
+      _codigoController.text = p.codigo;
+      _dimensionesController.text = p.dimensiones;
+      _descripcionController.text = p.descripcion;
+      _tipoMotivo = p.tipoMotivo;
+      _estado = p.estado;
+      _visibilidad = p.visibilidad;
+      _tipoRoca = p.tipoRoca;
+      _tecnicaGrabado = p.tecnicaGrabado;
     }
-  }
-
-  @override
-  void dispose() {
-    _codigoController.dispose();
-    _dimensionesController.dispose();
-    _descripcionController.dispose();
-    super.dispose();
-  }
-
-  void _guardar() {
-    if (_formKey.currentState!.validate() && _sitioSeleccionado != null) {
-      final nuevoPetroglifo = Petroglifo(
-        id: widget.petroglifoToEdit?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        codigo: _codigoController.text.trim(),
-        sitioId: _sitioSeleccionado!.id,
-        tipoRoca: _tipoRoca,
-        dimensiones: _dimensionesController.text.trim(),
-        tecnicaGrabado: _tecnicaGrabado,
-        tipoMotivo: _tipoMotivo,
-        descripcion: _descripcionController.text.trim(),
-        estado: _estado,
-        visibilidad: _visibilidad,
-        imagenPrincipal: widget.petroglifoToEdit?.imagenPrincipal,
-      );
-
-      // Por ahora solo mostramos (en versión futura se guardaría en Hive o backend)
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.petroglifoToEdit == null
-              ? 'Petroglifo "${nuevoPetroglifo.codigo}" guardado correctamente'
-              : 'Petroglifo actualizado correctamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.pop(context, nuevoPetroglifo); // Retorna el objeto guardado
-    }
+    _sitioSeleccionado = mockSitios.first;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.petroglifoToEdit == null
-            ? 'Nuevo Petroglifo'
-            : 'Editar Petroglifo'),
+        title: Text(widget.petroglifoToEdit == null ? 'Nueva Ficha Técnica' : 'Editar Ficha'),
+        backgroundColor: const Color(0xFF1A3A17),
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Código
-              TextFormField(
-                controller: _codigoController,
-                decoration: const InputDecoration(
-                  labelText: 'Código de Pieza *',
-                  hintText: 'Ej: MAU-001-P03',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'El código es obligatorio' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Sitio
-              DropdownButtonFormField<Sitio>(
-                value: _sitioSeleccionado,
-                decoration: const InputDecoration(
-                  labelText: 'Sitio',
-                  border: OutlineInputBorder(),
-                ),
-                items: mockSitios.map((sitio) {
-                  return DropdownMenuItem(
-                    value: sitio,
-                    child: Text('${sitio.codigo} - ${sitio.nombre}'),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => _sitioSeleccionado = value),
-                validator: (value) => value == null ? 'Debe seleccionar un sitio' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Tipo de Roca
-              DropdownButtonFormField<String>(
-                value: _tipoRoca,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de Roca',
-                  border: OutlineInputBorder(),
-                ),
-                items: _tiposRoca.map((tipo) => DropdownMenuItem(value: tipo, child: Text(tipo))).toList(),
-                onChanged: (value) => setState(() => _tipoRoca = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Dimensiones
-              TextFormField(
-                controller: _dimensionesController,
-                decoration: const InputDecoration(
-                  labelText: 'Dimensiones (alto × ancho)',
-                  hintText: 'Ej: 120 × 80 cm',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Técnica de Grabado
-              DropdownButtonFormField<String>(
-                value: _tecnicaGrabado,
-                decoration: const InputDecoration(
-                  labelText: 'Técnica de Grabado',
-                  border: OutlineInputBorder(),
-                ),
-                items: _tecnicas.map((tec) => DropdownMenuItem(value: tec, child: Text(tec))).toList(),
-                onChanged: (value) => setState(() => _tecnicaGrabado = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Tipo de Motivo
-              DropdownButtonFormField<TipoMotivo>(
-                value: _tipoMotivo,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de Motivo',
-                  border: OutlineInputBorder(),
-                ),
-                items: TipoMotivo.values.map((tipo) {
-                  return DropdownMenuItem(
-                    value: tipo,
-                    child: Text(tipo.name.toUpperCase()),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => _tipoMotivo = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Estado de Conservación
-              DropdownButtonFormField<EstadoConservacion>(
-                value: _estado,
-                decoration: const InputDecoration(
-                  labelText: 'Estado de Conservación',
-                  border: OutlineInputBorder(),
-                ),
-                items: EstadoConservacion.values.map((estado) {
-                  return DropdownMenuItem(
-                    value: estado,
-                    child: Text(estado.name.toUpperCase().replaceAllMapped(
-                          RegExp(r'([A-Z])'),
-                          (m) => ' ${m[0]}',
-                        ).trim()),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => _estado = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Visibilidad
-              DropdownButtonFormField<Visibilidad>(
-                value: _visibilidad,
-                decoration: const InputDecoration(
-                  labelText: 'Visibilidad Pública',
-                  border: OutlineInputBorder(),
-                ),
-                items: Visibilidad.values.map((v) {
-                  return DropdownMenuItem(
-                    value: v,
-                    child: Text(v.name.toUpperCase()),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => _visibilidad = value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Descripción
+              _buildTextField('Código de pieza *', _codigoController, hint: 'MAU-003-P05'),
+              _buildDropdownSitio(),
+              _buildDropdown('Tipo de motivo *', TipoMotivo.values, _tipoMotivo, (v) => setState(() => _tipoMotivo = v!)),
+              _buildTextField('Dimensiones', _dimensionesController, hint: '45 × 38 cm'),
+              _buildDropdown('Técnica de grabado', ['Percusión directa', 'Percusión indirecta', 'Abrasión', 'Mixto'], _tecnicaGrabado, (v) => setState(() => _tecnicaGrabado = v!)),
+              _buildDropdown('Tipo de roca', ['Granito', 'Pizarra', 'Arenisca', 'Otro'], _tipoRoca, (v) => setState(() => _tipoRoca = v!)),
+              _buildDropdown('Estado de conservación *', EstadoConservacion.values, _estado, (v) => setState(() => _estado = v!)),
+              _buildDropdown('Visibilidad pública', Visibilidad.values, _visibilidad, (v) => setState(() => _visibilidad = v!)),
+              
+              const SizedBox(height: 12),
+              const Text('Descripción del motivo', style: TextStyle(fontWeight: FontWeight.w500)),
               TextFormField(
                 controller: _descripcionController,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+              ),
+
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 12),
+
+              // Upload Zone
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Column(
+                  children: [
+                    Icon(Icons.photo_camera, size: 48, color: Colors.grey),
+                    SizedBox(height: 8),
+                    Text('Subir imagen principal (JPG/PNG, máx. 50 MB)', textAlign: TextAlign.center),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
 
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
-                  onPressed: _guardar,
-                  child: Text(
-                    widget.petroglifoToEdit == null ? 'Guardar Nuevo Petroglifo' : 'Actualizar Petroglifo',
-                    style: const TextStyle(fontSize: 16),
-                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Ficha guardada correctamente')),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2D5A27)),
+                  child: const Text('Guardar Ficha Técnica', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {String? hint}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hint,
+              border: const OutlineInputBorder(),
+            ),
+            validator: (value) => value?.trim().isEmpty ?? true ? 'Este campo es obligatorio' : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdown<T>(String label, List<T> items, T value, Function(T?) onChanged) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<T>(
+            value: value,
+            decoration: const InputDecoration(border: OutlineInputBorder()),
+            items: items.map((item) {
+              return DropdownMenuItem(
+                value: item,
+                child: Text(item.toString().split('.').last),
+              );
+            }).toList(),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownSitio() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Sitio arqueológico *', style: TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<Sitio>(
+            value: _sitioSeleccionado,
+            decoration: const InputDecoration(border: OutlineInputBorder()),
+            items: mockSitios.map((s) => DropdownMenuItem(value: s, child: Text('${s.codigo} - ${s.nombre}'))).toList(),
+            onChanged: (val) => setState(() => _sitioSeleccionado = val),
+          ),
+        ],
       ),
     );
   }
