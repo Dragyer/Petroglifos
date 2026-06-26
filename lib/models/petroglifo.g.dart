@@ -28,14 +28,16 @@ class PetroglifoAdapter extends TypeAdapter<Petroglifo> {
       estado: fields[8] as EstadoConservacion,
       visibilidad: fields[9] as Visibilidad,
       imagenPrincipal: fields[10] as String?,
-      imagenesPublicas: (fields[11] as List).cast<String>(),
+      imagenesPublicas: (fields[11] as List?)?.cast<String>(),
+      estaActivo: fields[12] as bool,
+      fechaRegistro: fields[13] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Petroglifo obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +61,11 @@ class PetroglifoAdapter extends TypeAdapter<Petroglifo> {
       ..writeByte(10)
       ..write(obj.imagenPrincipal)
       ..writeByte(11)
-      ..write(obj.imagenesPublicas);
+      ..write(obj.imagenesPublicas)
+      ..writeByte(12)
+      ..write(obj.estaActivo)
+      ..writeByte(13)
+      ..write(obj.fechaRegistro);
   }
 
   @override
@@ -75,7 +81,7 @@ class PetroglifoAdapter extends TypeAdapter<Petroglifo> {
 
 class TipoMotivoAdapter extends TypeAdapter<TipoMotivo> {
   @override
-  final int typeId = 2;
+  final int typeId = 10;
 
   @override
   TipoMotivo read(BinaryReader reader) {
@@ -129,7 +135,7 @@ class TipoMotivoAdapter extends TypeAdapter<TipoMotivo> {
 
 class EstadoConservacionAdapter extends TypeAdapter<EstadoConservacion> {
   @override
-  final int typeId = 3;
+  final int typeId = 11;
 
   @override
   EstadoConservacion read(BinaryReader reader) {
@@ -183,7 +189,7 @@ class EstadoConservacionAdapter extends TypeAdapter<EstadoConservacion> {
 
 class VisibilidadAdapter extends TypeAdapter<Visibilidad> {
   @override
-  final int typeId = 4;
+  final int typeId = 12;
 
   @override
   Visibilidad read(BinaryReader reader) {
@@ -193,7 +199,7 @@ class VisibilidadAdapter extends TypeAdapter<Visibilidad> {
       case 1:
         return Visibilidad.basica;
       case 2:
-        return Visibilidad.no;
+        return Visibilidad.noMostrar;
       default:
         return Visibilidad.completa;
     }
@@ -208,7 +214,7 @@ class VisibilidadAdapter extends TypeAdapter<Visibilidad> {
       case Visibilidad.basica:
         writer.writeByte(1);
         break;
-      case Visibilidad.no:
+      case Visibilidad.noMostrar:
         writer.writeByte(2);
         break;
     }

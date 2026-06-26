@@ -2,136 +2,11 @@ import 'package:hive/hive.dart';
 
 part 'petroglifo.g.dart';
 
-@HiveType(typeId: 1)
-class Petroglifo {
-  @HiveField(0)
-  final String id;
+// ─────────────────────────────────────────────
+// Enums (typeId 10, 11, 12)
+// ─────────────────────────────────────────────
 
-  @HiveField(1)
-  final String codigo;
-
-  @HiveField(2)
-  final String sitioId;
-
-  @HiveField(3)
-  final String tipoRoca;
-
-  @HiveField(4)
-  final String dimensiones;
-
-  @HiveField(5)
-  final String tecnicaGrabado;
-
-  @HiveField(6)
-  final TipoMotivo tipoMotivo;
-
-  @HiveField(7)
-  final String descripcion;
-
-  @HiveField(8)
-  final EstadoConservacion estado;
-
-  @HiveField(9)
-  final Visibilidad visibilidad;
-
-  @HiveField(10)
-  final String? imagenPrincipal;
-
-  @HiveField(11)
-  final List<String> imagenesPublicas;
-
-  Petroglifo({
-    required this.id,
-    required this.codigo,
-    required this.sitioId,
-    required this.tipoRoca,
-    required this.dimensiones,
-    required this.tecnicaGrabado,
-    required this.tipoMotivo,
-    required this.descripcion,
-    required this.estado,
-    this.visibilidad = Visibilidad.basica,
-    this.imagenPrincipal,
-    this.imagenesPublicas = const [],
-  });
-
-  String get estadoTexto {
-    switch (estado) {
-      case EstadoConservacion.muyBueno:
-        return 'Muy Bueno';
-      case EstadoConservacion.bueno:
-        return 'Bueno';
-      case EstadoConservacion.regular:
-        return 'Regular';
-      case EstadoConservacion.malo:
-        return 'Malo';
-      case EstadoConservacion.critico:
-        return 'Crítico';
-    }
-  }
-
-  factory Petroglifo.fromJson(Map<String, dynamic> json) => Petroglifo(
-        id: json['id'],
-        codigo: json['codigo'],
-        sitioId: json['sitioId'],
-        tipoRoca: json['tipoRoca'],
-        dimensiones: json['dimensiones'],
-        tecnicaGrabado: json['tecnicaGrabado'],
-        tipoMotivo: TipoMotivo.values[json['tipoMotivo']],
-        descripcion: json['descripcion'],
-        estado: EstadoConservacion.values[json['estado']],
-        visibilidad: Visibilidad.values[json['visibilidad'] ?? 1],
-        imagenPrincipal: json['imagenPrincipal'],
-        imagenesPublicas: List<String>.from(json['imagenesPublicas'] ?? []),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'codigo': codigo,
-        'sitioId': sitioId,
-        'tipoRoca': tipoRoca,
-        'dimensiones': dimensiones,
-        'tecnicaGrabado': tecnicaGrabado,
-        'tipoMotivo': tipoMotivo.index,
-        'descripcion': descripcion,
-        'estado': estado.index,
-        'visibilidad': visibilidad.index,
-        'imagenPrincipal': imagenPrincipal,
-        'imagenesPublicas': imagenesPublicas,
-      };
-
-  Petroglifo copyWith({
-    String? codigo,
-    String? tipoRoca,
-    String? dimensiones,
-    String? tecnicaGrabado,
-    TipoMotivo? tipoMotivo,
-    String? descripcion,
-    EstadoConservacion? estado,
-    Visibilidad? visibilidad,
-    String? imagenPrincipal,
-    List<String>? imagenesPublicas,
-  }) {
-    return Petroglifo(
-      id: id,
-      codigo: codigo ?? this.codigo,
-      sitioId: sitioId,
-      tipoRoca: tipoRoca ?? this.tipoRoca,
-      dimensiones: dimensiones ?? this.dimensiones,
-      tecnicaGrabado: tecnicaGrabado ?? this.tecnicaGrabado,
-      tipoMotivo: tipoMotivo ?? this.tipoMotivo,
-      descripcion: descripcion ?? this.descripcion,
-      estado: estado ?? this.estado,
-      visibilidad: visibilidad ?? this.visibilidad,
-      imagenPrincipal: imagenPrincipal ?? this.imagenPrincipal,
-      imagenesPublicas: imagenesPublicas ?? this.imagenesPublicas,
-    );
-  }
-}
-
-// ==================== ENUMS CON HIVE ====================
-
-@HiveType(typeId: 2)
+@HiveType(typeId: 10)
 enum TipoMotivo {
   @HiveField(0)
   geometrico,
@@ -145,7 +20,7 @@ enum TipoMotivo {
   noIdentificado,
 }
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 11)
 enum EstadoConservacion {
   @HiveField(0)
   muyBueno,
@@ -159,12 +34,117 @@ enum EstadoConservacion {
   critico,
 }
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 12)
 enum Visibilidad {
   @HiveField(0)
   completa,
   @HiveField(1)
   basica,
   @HiveField(2)
-  no,
+  noMostrar,
+}
+
+// ─────────────────────────────────────────────
+// Modelo principal
+// ─────────────────────────────────────────────
+
+@HiveType(typeId: 1)
+class Petroglifo extends HiveObject {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  String codigo;
+
+  @HiveField(2)
+  String sitioId;
+
+  @HiveField(3)
+  String tipoRoca;
+
+  @HiveField(4)
+  String dimensiones;
+
+  @HiveField(5)
+  String tecnicaGrabado;
+
+  @HiveField(6)
+  TipoMotivo tipoMotivo;
+
+  @HiveField(7)
+  String descripcion;
+
+  @HiveField(8)
+  EstadoConservacion estado;
+
+  @HiveField(9)
+  Visibilidad visibilidad;
+
+  @HiveField(10)
+  String? imagenPrincipal;
+
+  @HiveField(11)
+  List<String> imagenesPublicas;
+
+  @HiveField(12)
+  bool estaActivo;
+
+  @HiveField(13)
+  DateTime? fechaRegistro;
+
+  Petroglifo({
+    required this.id,
+    required this.codigo,
+    required this.sitioId,
+    required this.tipoRoca,
+    required this.dimensiones,
+    required this.tecnicaGrabado,
+    required this.tipoMotivo,
+    required this.descripcion,
+    required this.estado,
+    required this.visibilidad,
+    this.imagenPrincipal,
+    List<String>? imagenesPublicas,
+    this.estaActivo = true,
+    DateTime? fechaRegistro,
+  })  : imagenesPublicas = imagenesPublicas ?? [],
+        fechaRegistro = fechaRegistro ?? DateTime.now();
+
+  // ── Helpers de display ──────────────────────
+
+  String get estadoTexto {
+    switch (estado) {
+      case EstadoConservacion.muyBueno:
+        return 'Muy bueno';
+      case EstadoConservacion.bueno:
+        return 'Bueno';
+      case EstadoConservacion.regular:
+        return 'Regular';
+      case EstadoConservacion.malo:
+        return 'Malo';
+      case EstadoConservacion.critico:
+        return 'Crítico';
+    }
+  }
+
+  String get tipoMotivoTexto {
+    switch (tipoMotivo) {
+      case TipoMotivo.geometrico:
+        return 'Geométrico';
+      case TipoMotivo.zoomorfo:
+        return 'Zoomorfo';
+      case TipoMotivo.antropomorfo:
+        return 'Antropomorfo';
+      case TipoMotivo.abstracto:
+        return 'Abstracto';
+      case TipoMotivo.noIdentificado:
+        return 'No identificado';
+    }
+  }
+
+  bool get esVisible =>
+      visibilidad == Visibilidad.completa || visibilidad == Visibilidad.basica;
+
+  @override
+  String toString() => codigo;
 }

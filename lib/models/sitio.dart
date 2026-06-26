@@ -3,30 +3,39 @@ import 'package:hive/hive.dart';
 part 'sitio.g.dart';
 
 @HiveType(typeId: 0)
-class Sitio {
+class Sitio extends HiveObject {
   @HiveField(0)
   final String id;
 
   @HiveField(1)
-  final String nombre;
+  String nombre;
 
   @HiveField(2)
-  final String codigo;
+  String codigo;
 
   @HiveField(3)
-  final String comuna;
+  String comuna;
 
   @HiveField(4)
-  final String descripcion;
+  String descripcion;
 
   @HiveField(5)
-  final double lat;
+  double lat;
 
   @HiveField(6)
-  final double lng;
+  double lng;
 
   @HiveField(7)
-  final bool esRestringido;
+  bool esRestringido;
+
+  @HiveField(8)
+  bool estaActivo;
+
+  @HiveField(9)
+  String? responsable;
+
+  @HiveField(10)
+  DateTime? fechaRegistro;
 
   Sitio({
     required this.id,
@@ -36,50 +45,16 @@ class Sitio {
     required this.descripcion,
     required this.lat,
     required this.lng,
-    this.esRestringido = true,
-  });
+    this.esRestringido = false,
+    this.estaActivo = true,
+    this.responsable,
+    DateTime? fechaRegistro,
+  }) : fechaRegistro = fechaRegistro ?? DateTime.now();
 
-  // Constructor desde JSON (útil para migraciones o backups)
-  factory Sitio.fromJson(Map<String, dynamic> json) => Sitio(
-        id: json['id'],
-        nombre: json['nombre'],
-        codigo: json['codigo'],
-        comuna: json['comuna'],
-        descripcion: json['descripcion'],
-        lat: json['lat'].toDouble(),
-        lng: json['lng'].toDouble(),
-        esRestringido: json['esRestringido'] ?? true,
-      );
+  /// Devuelve coordenadas visibles según restricción del sitio
+  String get coordenadasPublicas =>
+      esRestringido ? 'Coordenadas restringidas · $comuna' : '$lat, $lng';
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'nombre': nombre,
-        'codigo': codigo,
-        'comuna': comuna,
-        'descripcion': descripcion,
-        'lat': lat,
-        'lng': lng,
-        'esRestringido': esRestringido,
-      };
-
-  Sitio copyWith({
-    String? nombre,
-    String? codigo,
-    String? comuna,
-    String? descripcion,
-    double? lat,
-    double? lng,
-    bool? esRestringido,
-  }) {
-    return Sitio(
-      id: id,
-      nombre: nombre ?? this.nombre,
-      codigo: codigo ?? this.codigo,
-      comuna: comuna ?? this.comuna,
-      descripcion: descripcion ?? this.descripcion,
-      lat: lat ?? this.lat,
-      lng: lng ?? this.lng,
-      esRestringido: esRestringido ?? this.esRestringido,
-    );
-  }
+  @override
+  String toString() => '$codigo - $nombre';
 }

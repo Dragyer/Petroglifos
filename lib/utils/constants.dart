@@ -36,7 +36,13 @@ class AppConstants {
   // Offline
   static const String boxSitios = 'sitios';
   static const String boxPetroglifos = 'petroglifos';
+  static const String boxVisitas       = 'visitas';
   static const String boxUsuarios = 'usuarios';
+
+  // ── Credenciales demo (solo para desarrollo) ─
+  static const String demoAdminEmail   = 'felipe@patrimonio.cl';
+  static const String demoInvEmail     = 'pablo@patrimonio.cl';
+  static const String demoPassword     = '1234';
 }
 
 class AppStrings {

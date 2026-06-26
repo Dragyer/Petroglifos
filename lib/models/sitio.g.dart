@@ -25,13 +25,16 @@ class SitioAdapter extends TypeAdapter<Sitio> {
       lat: fields[5] as double,
       lng: fields[6] as double,
       esRestringido: fields[7] as bool,
+      estaActivo: fields[8] as bool,
+      responsable: fields[9] as String?,
+      fechaRegistro: fields[10] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Sitio obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +50,13 @@ class SitioAdapter extends TypeAdapter<Sitio> {
       ..writeByte(6)
       ..write(obj.lng)
       ..writeByte(7)
-      ..write(obj.esRestringido);
+      ..write(obj.esRestringido)
+      ..writeByte(8)
+      ..write(obj.estaActivo)
+      ..writeByte(9)
+      ..write(obj.responsable)
+      ..writeByte(10)
+      ..write(obj.fechaRegistro);
   }
 
   @override
