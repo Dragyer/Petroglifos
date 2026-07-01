@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../models/visita.dart';
 import '../../models/sitio.dart';
 import '../../services/database_service.dart';
-// alias local para evitar importar visita.dart aquí
-import '../../models/visita.dart' as _vm;
-typedef _VisitaModel = _vm.Visita;
 
 class SitiosScreen extends StatefulWidget {
   const SitiosScreen({super.key});
@@ -409,7 +407,7 @@ class _VisitaFormSheetState extends State<_VisitaFormSheet> {
   }
 
   Future<void> _guardar() async {
-    final visita = _VisitaModel(
+    final visita = Visita(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       sitioId: widget.sitio.id,
       investigadorId: 'u1',
@@ -426,4 +424,5 @@ class _VisitaFormSheetState extends State<_VisitaFormSheet> {
     }
   }
 }
+
 
