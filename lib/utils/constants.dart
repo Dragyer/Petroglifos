@@ -24,6 +24,12 @@ class AppConstants {
   static const String imagePath = 'assets/images/';
   static const String defaultImage = 'assets/images/default_petroglifo.jpg';
 
+   // ── Límites multimedia ──────────────────────
+  /// 50 MB en bytes
+  static const int maxArchivoBytes     = 50 * 1024 * 1024;
+  static const List<String> formatosImagen = ['jpg', 'jpeg', 'png'];
+  static const List<String> formatosDoc   = ['pdf'];
+
   // Validation
   static const String codigoPattern = r'^MAU-\d{3}-P\d{2}$'; // Ej: MAU-001-P03
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'petroglifo_form.dart';
 import 'sitios_screen.dart';
 import 'usuarios_screen.dart';
+import 'reportes_screen.dart';
 import '../../services/database_service.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -127,7 +128,8 @@ class DashboardScreen extends StatelessWidget {
               title: 'Reportes',
               subtitle: 'Estadísticas y métricas del sistema',
               color: Colors.teal,
-              onTap: () => _mostrarReportesDialog(context),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ReportesScreen())),
             ),
 
             const SizedBox(height: 80),
@@ -171,39 +173,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  void _mostrarReportesDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Generar reporte'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.map, color: Colors.green),
-              title: const Text('Reporte de sitios'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.article, color: Colors.amber),
-              title: const Text('Reporte de petroglifos'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today, color: Colors.orange),
-              title: const Text('Historial de visitas'),
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar')),
-        ],
-      ),
-    );
-  }
+
 }
 
 class _StatCard extends StatelessWidget {

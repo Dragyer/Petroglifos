@@ -424,5 +424,3 @@ class _VisitaFormSheetState extends State<_VisitaFormSheet> {
     }
   }
 }
-
-
